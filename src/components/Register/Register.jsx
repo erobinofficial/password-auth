@@ -1,4 +1,8 @@
-import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  updateProfile,
+} from "firebase/auth";
 import auth from "../../firebase.config";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -7,7 +11,6 @@ const Register = () => {
   const [registerError, setRegisterError] = useState("");
   const [registerSuccess, setRegisterSuccess] = useState("");
   const [showPassword, getShowPassword] = useState(false);
-
 
   // form handle
   const handleRegister = (e) => {
@@ -21,44 +24,42 @@ const Register = () => {
     // console.log(email, username, password);
     console.log(password.length);
     // reset error and success messages
-    setRegisterError('');
-    setRegisterSuccess('');
+    setRegisterError("");
+    setRegisterSuccess("");
 
     // conditions
     if (password.length < 6) {
-      setRegisterError('Your password must be at least 6 characters or longer. Please try again.')
+      setRegisterError(
+        "Your password must be at least 6 characters or longer. Please try again."
+      );
+      return;
+    } else if (!/[A-Z]/.test(password)) {
+      setRegisterError("Your password should have an UPPERCASE ");
+      return;
+    } else if (!accept) {
+      setRegisterError("accept terms and conditions");
       return;
     }
-    else if (!/[A-Z]/.test(password)){
-      setRegisterError('Your password should have an UPPERCASE ')
-      return;
-    }
-    else if(!accept){
-      setRegisterError('accept terms and conditions')
-      return;
-    }
-    
+
     // create user
     createUserWithEmailAndPassword(auth, email, password)
-    
       .then((result) => {
-        setRegisterSuccess('You are registered successfully');
+        setRegisterSuccess("You are registered successfully");
         console.log(result);
-        updateProfile(result.user,{
-          displayName : name, photoURL : "omuk.jpg"
+        updateProfile(result.user, {
+          displayName: name,
+          photoURL: "omuk.jpg",
         })
-        .then(()=>{
-          console.log('profile updated');
-        })
-        .catch();
-        sendEmailVerification(result.user)
-        .then(()=>{
-          alert('Sent verification link');
-        })
-        
+          .then(() => {
+            console.log("profile updated");
+          })
+          .catch();
+        sendEmailVerification(result.user).then(() => {
+          alert("Sent verification link");
+        });
       })
       .catch((error) => {
-        setRegisterError(error.message)
+        setRegisterError(error.message);
       });
   };
 
@@ -82,7 +83,8 @@ const Register = () => {
             type="email"
             className="grow"
             placeholder="Email"
-            name="email" required
+            name="email"
+            required
           />
         </label>
         <label className="input input-bordered flex items-center gap-2 mt-2">
@@ -99,7 +101,8 @@ const Register = () => {
             type="text"
             className="grow"
             placeholder="Full name"
-            name="name" required
+            name="name"
+            required
           />
         </label>
         {/* <label className="input input-bordered flex items-center gap-2 mt-2">
@@ -131,32 +134,31 @@ const Register = () => {
               clipRule="evenodd"
             />
           </svg>
-          <input 
-          type={showPassword ? "text" : "password"} 
-          className="grow" 
-          name="password" 
-          required /> 
-          <span onClick={()=> getShowPassword(!showPassword)}>
-            {
-              showPassword ? "Hide" : "Show"
-            }
+          <input
+            type={showPassword ? "text" : "password"}
+            className="grow"
+            name="password"
+            required
+          />
+          <span onClick={() => getShowPassword(!showPassword)}>
+            {showPassword ? "Hide" : "Show"}
           </span>
         </label>
         <div className="m-2 ">
-        <input type="checkbox" name="terms" />
-        <label htmlFor="terms" className="ml-2">Accept terms & conditions</label>
+          <input type="checkbox" name="terms" />
+          <label htmlFor="terms" className="ml-2">
+            Accept terms & conditions
+          </label>
         </div>
         <label>
           <button className="btn mt-5">Sign Up</button>
         </label>
       </form>
-      {
-        registerError && <div>{registerError}</div>
-      }
-      {
-        registerSuccess && <p>{registerSuccess}</p>
-      }
-      <p>Already have an account? <Link to="/login">Login</Link></p>
+      {registerError && <div>{registerError}</div>}
+      {registerSuccess && <p>{registerSuccess}</p>}
+      <p>
+        Already have an account? <Link to="/login">Login</Link>
+      </p>
     </div>
   );
 };
