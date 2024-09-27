@@ -1,6 +1,7 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import auth from "../../firebase.config";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Register = () => {
   const [registerError, setRegisterError] = useState("");
@@ -12,11 +13,12 @@ const Register = () => {
   const handleRegister = (e) => {
     e.preventDefault();
     const email = e.target.email.value;
-    const username = e.target.username.value;
+    // const username = e.target.username.value;
     const password = e.target.password.value;
+    const accept = e.target.terms.checked;
     // console.log(email, username, password);
     console.log(password.length);
-    // reset error
+    // reset error and success messages
     setRegisterError('');
     setRegisterSuccess('');
 
@@ -29,11 +31,22 @@ const Register = () => {
       setRegisterError('Your password should have an UPPERCASE ')
       return;
     }
+    else if(!accept){
+      setRegisterError('accept terms and conditions')
+      return;
+    }
     
     // create user
-    createUserWithEmailAndPassword(auth, email, username, password)
+    createUserWithEmailAndPassword(auth, email, password)
+    
       .then((result) => {
         setRegisterSuccess('You are registered successfully');
+        console.log(result);
+        sendEmailVerification(result.user)
+        .then(()=>{
+          alert('Sent verification link');
+        })
+        
       })
       .catch((error) => {
         setRegisterError(error.message)
@@ -63,7 +76,7 @@ const Register = () => {
             name="email" required
           />
         </label>
-        <label className="input input-bordered flex items-center gap-2 mt-2">
+        {/* <label className="input input-bordered flex items-center gap-2 mt-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 16 16"
@@ -78,7 +91,7 @@ const Register = () => {
             placeholder="Username"
             name="username"
           />
-        </label>
+        </label> */}
         <label className="input input-bordered flex items-center gap-2 mt-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -103,6 +116,10 @@ const Register = () => {
             }
           </span>
         </label>
+        <div className="m-2 ">
+        <input type="checkbox" name="terms" />
+        <label htmlFor="terms" className="ml-2">Accept terms & conditions</label>
+        </div>
         <label>
           <button className="btn mt-5">Sign Up</button>
         </label>
@@ -113,6 +130,7 @@ const Register = () => {
       {
         registerSuccess && <p>{registerSuccess}</p>
       }
+      <p>Already have an account? <Link to="/login">Login</Link></p>
     </div>
   );
 };
